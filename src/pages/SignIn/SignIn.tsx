@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import api from "@/api";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 interface SignInForm {
   username: string;
@@ -11,6 +12,7 @@ interface SignInForm {
 }
 
 function SignIn() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const {
     register,
@@ -19,13 +21,16 @@ function SignIn() {
   } = useForm();
   const [isLoading, setIsLoading] = useState(false);
 
+  /** handle sign in */
   const handleSignInSubmit = async (data: SignInForm) => {
     if (isLoading) return;
 
     setIsLoading(true);
     try {
-      const res = await api.auth.signIn(data);
+      const token = await api.auth.signIn(data);
+      localStorage.setItem("authToken", token);
       toast.success("Sign in successful!");
+      navigate({ pathname: "/" });
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);
